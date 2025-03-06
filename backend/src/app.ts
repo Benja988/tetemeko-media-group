@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from "express-rate-limit";
 import dotenv from 'dotenv';
+import authRoutes from './routes/auth.routes'
 
 // Load env
 dotenv.config();
@@ -21,6 +22,9 @@ const limiter = rateLimit({
     max: 100,
 });
 app.use(limiter);
+
+// Routes
+app.use("/api/auth", authRoutes)
 
 // Default Route
 app.get('/', (req, res) => {
