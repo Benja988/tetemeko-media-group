@@ -7,7 +7,7 @@ const services = [
   {
     id: 1,
     title: "Radio Broadcasting",
-    description: "We deliver high-quality radio content, live shows, and engaging programs across multiple stations.",
+    description: "Delivering high-quality radio content, live shows, and engaging programs across multiple stations.",
     icon: <Radio className="w-12 h-12 text-primary" />,
   },
   {
@@ -19,55 +19,92 @@ const services = [
   {
     id: 3,
     title: "Podcasting",
-    description: "Our podcasts cover various topics, from entertainment to deep conversations with industry experts.",
+    description: "Podcasts covering entertainment, deep conversations, and expert insights.",
     icon: <Mic className="w-12 h-12 text-primary" />,
   },
   {
     id: 4,
     title: "Advertising & Promotions",
-    description: "Reach your audience through targeted radio ads, promotions, and media campaigns.",
+    description: "Targeted radio ads, promotions, and media campaigns for maximum reach.",
     icon: <ShoppingCart className="w-12 h-12 text-primary" />,
   },
   {
     id: 5,
     title: "Video Production",
-    description: "We create high-quality video content, including interviews, event coverage, and branded media.",
+    description: "High-quality video content including interviews, event coverage, and branded media.",
     icon: <Video className="w-12 h-12 text-primary" />,
   },
   {
     id: 6,
     title: "Community Engagement",
-    description: "We foster community growth through events, social initiatives, and listener interactions.",
+    description: "Fostering community growth through events, social initiatives, and listener interactions.",
     icon: <Users className="w-12 h-12 text-primary" />,
   },
 ];
 
 export function OurServices() {
   return (
-    <section className="w-full bg-[#000E15] text-white py-16">
+    <section className="relative w-full bg-gradient-to-b from-[#00141F] to-[#000E15] text-white py-20 overflow-hidden">
+      {/* Floating Background Elements */}
+      <motion.div
+        className="absolute -top-16 left-10 w-32 h-32 bg-primary/40 rounded-full blur-3xl"
+        animate={{ y: [0, 20, 0] }}
+        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute -bottom-20 right-10 w-40 h-40 bg-primary/30 rounded-full blur-3xl"
+        animate={{ y: [0, 30, 0] }}
+        transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+      />
+
       <div className="container mx-auto px-6 text-center">
+        {/* Section Header */}
         <motion.h2
-          className="text-4xl font-bold text-primary mb-12"
-          initial={{ opacity: 0, y: -20 }}
+          className="text-5xl font-extrabold text-primary mb-16"
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
           Our Services
         </motion.h2>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {services.map((service) => (
+        {/* Services Grid */}
+        <div className="grid md:grid-cols-3 gap-10">
+          {services.map((service, index) => (
             <motion.div
               key={service.id}
-              className="bg-gray-800 p-6 rounded-xl shadow-lg text-center hover:scale-105 transition-transform duration-300"
-              initial={{ opacity: 0, y: 20 }}
+              className="relative bg-gray-900 p-8 rounded-xl shadow-xl text-center transform transition-all duration-500 group hover:scale-105"
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
             >
-              <div className="flex justify-center mb-4">{service.icon}</div>
-              <h3 className="text-2xl font-semibold">{service.title}</h3>
-              <p className="text-gray-400 mt-2">{service.description}</p>
+              {/* Glowing Hover Effect */}
+              <motion.div
+                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-30 bg-primary blur-2xl transition-all duration-500"
+              />
+
+              {/* Icon */}
+              <motion.div
+                className="flex justify-center mb-4"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.6 }}
+              >
+                {service.icon}
+              </motion.div>
+
+              {/* Title & Description */}
+              <h3 className="text-2xl font-bold text-white">{service.title}</h3>
+              <p className="text-gray-400 mt-3">{service.description}</p>
+
+              {/* Animated Border */}
+              <motion.div
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-primary rounded-full"
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: index * 0.2 }}
+              />
             </motion.div>
           ))}
         </div>

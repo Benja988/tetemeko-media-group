@@ -39,9 +39,9 @@ export function Navbar() {
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex space-x-6 font-medium">
                         <Link href="/about" className="hover:text-yellow-400">About Us</Link>
-                        <Link href="/#services" className="hover:text-yellow-400">Services</Link>
+                        <Link href="/services" className="hover:text-yellow-400">Services</Link>
                         <Link href="/#marketplace" className="hover:text-yellow-400">Marketplace</Link>
-                        <Link href="/#contact" className="hover:text-yellow-400">Contact Us</Link>
+                        <Link href="/contact" className="hover:text-yellow-400">Contact Us</Link>
                         <Link href="/#news-blogs" className="hover:text-yellow-400">News & Blogs</Link>
                     </nav>
 
