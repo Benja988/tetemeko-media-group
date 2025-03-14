@@ -1,40 +1,98 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Radio, Music, Waves } from "lucide-react";
 
 const channels = [
-  { name: "Radio One", icon: <Radio size={50} />, link: "/radio-one" },
-  { name: "Music Live", icon: <Music size={50} />, link: "/music-live" },
-  { name: "Wave FM", icon: <Waves size={50} />, link: "/wave-fm" },
+  {
+    name: "Radio One",
+    icon: <Radio size={36} className="text-blue-500" />, 
+    link: "/radio-one",
+    description: "Trending music, talk shows, and live news updates.",
+  },
+  {
+    name: "Music Live",
+    icon: <Music size={36} className="text-purple-500" />, 
+    link: "/music-live",
+    description: "Live performances, exclusive tracks, and artist interviews.",
+  },
+  {
+    name: "Wave FM",
+    icon: <Waves size={36} className="text-red-500" />, 
+    link: "/wave-fm",
+    description: "Latest in pop culture, indie music, and deep discussions.",
+  },
 ];
 
 export function OurChannels() {
-  return (
-    <section className="w-full bg-[#000E15] text-white py-16 overflow-hidden">
-      <div className="container mx-auto text-center">
-        <h2 className="text-4xl font-bold text-primary mb-6">Our Channels</h2>
-        <p className="text-gray-300 mb-8">Explore our diverse media channels.</p>
-      </div>
+  const [currentChannel, setCurrentChannel] = useState(0);
 
-      {/* Icons Moving, Text Static */}
-      <div className="flex justify-center gap-8">
-        {channels.map((channel, index) => (
-          <div
-            key={index}
-            className="flex flex-col items-center justify-center bg-[#000E15] rounded-lg p-6 shadow-md w-48"
-          >
-            {/* Only move the icon */}
-            <motion.div
-              animate={{ y: [-10, 10, -10] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              className="text-primary"
-            >
-              {channel.icon}
-            </motion.div>
-            <h3 className="text-lg font-semibold mt-3">{channel.name}</h3>
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentChannel((prev) => (prev + 1) % channels.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <section className="relative w-full py-16 md:py-24 overflow-hidden">
+      <div className="container mx-auto flex flex-col md:flex-row items-center gap-12 px-6 relative z-10">
+        {/* Left: Rotating Channels */}
+        <div className="w-full md:w-1/2 space-y-10">
+          <h2 className="text-5xl font-extrabold text-gray-900 drop-shadow-lg">
+            Our Channels
+          </h2>
+
+          <div className="relative w-full h-40 flex justify-center items-center">
+            <AnimatePresence mode="wait">
+              <motion.a
+                key={channels[currentChannel].name}
+                href={channels[currentChannel].link}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.6 }}
+                className="flex flex-col items-center gap-2 p-6 bg-white/70 backdrop-blur-md border border-gray-200 rounded-xl shadow-lg hover:shadow-2xl hover:border-indigo-400 transition-all duration-300 w-80 text-center relative overflow-hidden"
+              >
+                <motion.div
+                  animate={{ rotate: [0, 8, -8, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                  className="text-blue-500 flex-shrink-0"
+                >
+                  {channels[currentChannel].icon}
+                </motion.div>
+                <h3 className="text-lg font-semibold text-gray-900">{channels[currentChannel].name}</h3>
+                <p className="text-gray-600 text-sm">{channels[currentChannel].description}</p>
+              </motion.a>
+            </AnimatePresence>
           </div>
-        ))}
+        </div>
+
+        {/* Right: Description Section */}
+        <motion.div
+          className="w-full md:w-1/2 text-gray-800"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+        >
+          <h3 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+            Explore Our Channels
+          </h3>
+          <p className="text-md leading-relaxed text-gray-700">
+            <span className="font-bold text-blue-600">Tetemeko Media Group</span> brings you a curated selection of radio stations for 
+            <span className="text-indigo-600 font-medium"> news, entertainment, and deep conversations. </span>
+            Whether you love music, culture, or discussions, we have a channel for you.
+          </p>
+          <ul className="list-disc pl-5 mt-4 text-md space-y-2">
+            <li><span className="font-semibold text-blue-600">Radio One:</span> 24/7 news, talk shows, and community updates.</li>
+            <li><span className="font-semibold text-purple-500">Music Live:</span> Live performances, artist interviews, and exclusive tracks.</li>
+            <li><span className="font-semibold text-red-500">Wave FM:</span> Indie music, pop culture, and thought-provoking discussions.</li>
+          </ul>
+          <p className="mt-6 text-md text-gray-600">
+            <span className="font-semibold text-indigo-500">Tune in now</span> and discover the sound of the future!
+          </p>
+        </motion.div>
       </div>
     </section>
   );

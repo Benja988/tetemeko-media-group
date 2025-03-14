@@ -37,43 +37,50 @@ export function NewsFeed() {
   }, []);
 
   return (
-    <section className="w-full bg-[#000E15] text-white py-16">
-      <div className="container mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center text-primary mb-12">
+    <section className="w-full py-20">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Header */}
+        <motion.h2
+          className="text-5xl font-extrabold text-center text-gray-900 tracking-tight"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           Latest News & Blogs
-        </h2>
+        </motion.h2>
 
-        <div className="flex flex-col gap-10">
-          {newsArticles.map((article, index) => (
+        {/* Articles in a Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+          {newsArticles.map((article) => (
             <motion.div
               key={article.id}
-              className={`flex flex-col md:flex-row items-center gap-6 bg-gray-800 rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl ${
-                index % 2 === 0 ? "md:flex-row-reverse" : ""
-              }`}
+              className="group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="w-full md:w-1/2 h-64 relative">
+              {/* Image */}
+              <div className="w-full h-64 relative">
                 {isClient && (
                   <Image
                     src={article.image}
                     alt={article.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover w-full h-full"
+                    className="object-cover w-full h-full transition-all duration-300 group-hover:scale-105"
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-75"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-50"></div>
               </div>
 
-              <div className="w-full md:w-1/2 p-6">
-                <h3 className="text-2xl font-bold">{article.title}</h3>
-                <p className="text-gray-400 mt-3 leading-relaxed">{article.excerpt}</p>
+              {/* Content */}
+              <div className="p-6 bg-white">
+                <h3 className="text-2xl font-bold text-gray-900">{article.title}</h3>
+                <p className="text-gray-600 mt-3 leading-relaxed">{article.excerpt}</p>
 
                 <Button
                   variant="outline"
-                  className="mt-5 px-6 py-3 border-primary text-white hover:bg-primary hover:text-black transition-all duration-300"
+                  className="mt-5 px-6 py-3 border-gray-800 text-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300"
                 >
                   Read More
                 </Button>

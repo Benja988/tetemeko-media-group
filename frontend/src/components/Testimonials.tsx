@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import Image from "next/image";
 
@@ -30,46 +29,52 @@ const testimonials = [
 ];
 
 export function Testimonials() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % testimonials.length);
-    }, 4000); // Change testimonial every 4 seconds
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <section className="w-full bg-gray-900 text-white py-16">
-      <div className="container mx-auto px-6 text-center">
-        <h2 className="text-4xl font-bold text-primary mb-8">⭐ Listener Reviews</h2>
+    <section className="w-full py-20">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Header */}
+        <motion.h2
+          className="text-5xl font-extrabold text-center text-gray-900 tracking-tight"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          ⭐ Listener Reviews
+        </motion.h2>
 
-        <div className="relative w-full max-w-lg mx-auto">
-          <AnimatePresence mode="wait">
+        {/* Testimonials Row Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+          {testimonials.map((testimonial) => (
             <motion.div
-              key={testimonials[index].id}
-              className="bg-gray-800 p-8 rounded-2xl shadow-lg flex flex-col items-center gap-4"
+              key={testimonial.id}
+              className="group relative overflow-hidden bg-white p-6 rounded-2xl shadow-lg flex flex-col items-center gap-4 transition-all duration-300 hover:shadow-xl"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6 }}
             >
+              {/* Image */}
               <Image
-                src={testimonials[index].image}
-                alt={testimonials[index].name}
+                src={testimonial.image}
+                alt={testimonial.name}
                 width={80}
                 height={80}
-                className="w-20 h-20 rounded-full border-2 border-primary"
+                className="w-20 h-20 rounded-full border-2 border-gray-900"
               />
-              <p className="text-lg text-gray-300 italic">"{testimonials[index].review}"</p>
+
+              {/* Review */}
+              <p className="text-lg text-gray-600 italic text-center">"{testimonial.review}"</p>
+
+              {/* Star Rating */}
               <div className="flex">
-                {[...Array(testimonials[index].rating)].map((_, i) => (
+                {[...Array(testimonial.rating)].map((_, i) => (
                   <Star key={i} className="text-yellow-400 w-5 h-5" />
                 ))}
               </div>
-              <p className="text-primary font-semibold">{testimonials[index].name}</p>
+
+              {/* Name */}
+              <p className="text-gray-900 font-semibold">{testimonial.name}</p>
             </motion.div>
-          </AnimatePresence>
+          ))}
         </div>
       </div>
     </section>

@@ -2,3 +2,6 @@
 
 @import "tailwindcss";
 
+body {
+  padding-top: 80px; /* Adjust this value based on your navbar height */
+}
