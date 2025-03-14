@@ -50,11 +50,11 @@ html {
 
 /* Link Hover Effects */
 a {
-  @apply text-blue-600 transition-colors duration-300;
+  @apply text-white transition-colors duration-300;
 }
 
 a:hover {
-  @apply text-blue-800;
+  @apply text-gray-400;
 }
 
 /* Section Spacing */

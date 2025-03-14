@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import NewsList from "@/components/news/NewsList";
-import Banner from "@/components/news/Banner";  // Import the Banner component
+import Banner from "@/components/news/Banner";  
 
 type Article = {
     source: { id: string | null; name: string };
@@ -15,8 +15,10 @@ type Article = {
     content: string;
 };
 
+const API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY;
+
 const API_URL = (page: number) =>
-    `https://newsapi.org/v2/top-headlines?country=us&page=${page}&pageSize=6&apiKey=${process.env.NEXT_PUBLIC_NEWS_API_KEY}`;
+    `https://newsapi.org/v2/top-headlines?country=us&page=${page}&pageSize=6&apiKey=${API_KEY}`;
 
 export default function NewsPage() {
     const [articles, setArticles] = useState<Article[]>([]);
@@ -27,10 +29,12 @@ export default function NewsPage() {
 
     useEffect(() => {
         const fetchArticles = async () => {
-            if (!process.env.NEXT_PUBLIC_NEWS_API_KEY) {
+            if (!API_KEY) {
                 setError("API key is missing. Please check your .env file.");
                 return;
             }
+
+            console.log("Fetching data from:", API_URL(page)); // Debug API URL
 
             setLoading(true);
             setError(null);
@@ -41,8 +45,8 @@ export default function NewsPage() {
 
                 console.log("Fetched Data:", data); // Log entire response for debugging
 
-                if (res.status !== 200) {
-                    throw new Error(`API Error: ${data.message || "Unknown error"}`);
+                if (!res.ok) {
+                    throw new Error(`API Error: ${data.message || res.statusText}`);
                 }
 
                 if (!data.articles || !Array.isArray(data.articles)) {
@@ -58,9 +62,9 @@ export default function NewsPage() {
                 } else {
                     setError("An unknown error occurred.");
                 }
+            } finally {
+                setLoading(false);
             }
-
-            setLoading(false);
         };
 
         fetchArticles();
@@ -70,31 +74,34 @@ export default function NewsPage() {
     const lastArticleRef = useCallback(
         (node: HTMLDivElement | null) => {
             if (loading) {
-                return;
+              return;
             }
+
             if (observer.current) {
-                observer.current.disconnect();
+              observer.current.disconnect();
             }
 
             observer.current = new IntersectionObserver(
                 (entries) => {
                     if (entries[0].isIntersecting) {
-                        setPage((prev) => prev + 1); // Load next page when last article is visible
+                        console.log("Loading more articles...");
+                        setPage((prev) => prev + 1);
                     }
                 },
                 { threshold: 1.0 }
             );
+
             if (node) {
-                observer.current.observe(node);
+              observer.current.observe(node);
             }
         },
         [loading]
     );
 
     return (
-        <div className="container mx-auto p-6 mt-16"> {/* Added margin-top to avoid conflict with navbar */}
+        <div className="container mx-auto p-6 mt-16">
             {/* Banner Section */}
-            <Banner /> {/* Using the Banner component */}
+            <Banner />
 
             <h1 className="text-3xl font-bold mb-6">Latest News</h1>
             {error && <p className="text-red-500 text-center">{error}</p>}

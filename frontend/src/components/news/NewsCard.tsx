@@ -1,5 +1,8 @@
-import Link from "next/link";
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
+import NewsModal from "./NewsModal"; // Import the modal component
 
 interface NewsCardProps {
     article: {
@@ -11,35 +14,45 @@ interface NewsCardProps {
 }
 
 export default function NewsCard({ article }: NewsCardProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     return (
-        <div className="flex flex-col bg-white border rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-            {/* Image Section */}
-            <div className="w-full h-40 bg-gray-200">
-                <Image
-                    src={article.urlToImage || "/placeholder.jpg"} // Default image if none provided
-                    alt={article.title}
-                    width={400} // You can set a width for the image
-                    height={160} // You can set a height for the image
-                    className="w-full h-full object-cover"
-                />
-            </div>
+        <>
+            <div className="w-full max-w-4xl mx-auto py-4 border-b border-gray-300 last:border-none">
+                <div className="flex items-center gap-6 bg-white shadow-md p-4 rounded-lg transition-transform transform hover:scale-[1.02] duration-300">
+                    {/* Image Section (Short Height, Wide) */}
+                    <div className="relative w-48 h-28 flex-shrink-0 rounded-lg overflow-hidden">
+                        {article.urlToImage ? (
+                            <Image
+                                src={article.urlToImage}
+                                alt={article.title}
+                                layout="fill"
+                                objectFit="cover"
+                                className="rounded-lg"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gray-300 rounded-lg"></div>
+                        )}
+                    </div>
 
-            {/* Content Section */}
-            <div className="p-4 flex flex-col flex-grow">
-                <h2 className="text-lg font-semibold line-clamp-2">{article.title}</h2>
-                <p className="text-sm text-gray-600 mt-2 line-clamp-3">{article.description}</p>
+                    {/* Content Section */}
+                    <div className="flex-1">
+                        <h2 className="text-lg font-bold text-gray-900 line-clamp-2">{article.title}</h2>
+                        <p className="text-gray-600 text-sm mt-2 line-clamp-2">{article.description}</p>
 
-                {/* Read More Link */}
-                <div className="mt-auto pt-4">
-                    <Link
-                        href={article.url}
-                        target="_blank"
-                        className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
-                    >
-                        Read More →
-                    </Link>
+                        {/* Read More Button */}
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="mt-3 inline-block bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                        >
+                            Read More →
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {/* News Modal */}
+            {isModalOpen && <NewsModal article={article} onClose={() => setIsModalOpen(false)} />}
+        </>
     );
 }

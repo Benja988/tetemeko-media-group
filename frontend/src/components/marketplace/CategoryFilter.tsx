@@ -1,46 +1,46 @@
 "use client";
 
 interface Category {
-    slug: string;
-    name: string;
+  slug: string;
+  name: string;
 }
 
 interface CategoryFilterProps {
-    categories: Category[];
-    selectedCategory: string;
-    setSelectedCategory: (category: string) => void;
+  categories: Category[];
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
 }
 
-export default function CategoryFilter({ categories, selectedCategory, setSelectedCategory }: CategoryFilterProps) {
-    const getButtonClasses = (isSelected: boolean) =>
-        `px-4 py-2 rounded-md transition-all ${
-            isSelected ? "bg-yellow-500 text-black font-semibold shadow-md" : "bg-gray-200 hover:bg-gray-300"
-        }`;
+export default function CategoryFilter({
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+}: CategoryFilterProps) {
+  return (
+    <div className="bg-white p-5 rounded-xl shadow-lg border border-gray-200 w-full md:w-1/4">
+      <h2 className="text-xl font-semibold text-gray-900 mb-4">Categories</h2>
+      <ul>
+        <li
+          className={`p-3 cursor-pointer rounded-md transition-all duration-200 hover:bg-gray-100 ${
+            selectedCategory === "" ? "font-semibold text-gray-900 bg-gray-100" : "text-gray-700"
+          }`}
+          onClick={() => setSelectedCategory("")}
+        >
+          All Categories
+        </li>
 
-    return (
-        <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
-            <button
-                className={getButtonClasses(selectedCategory === "")}
-                onClick={() => setSelectedCategory("")}
-                aria-pressed={selectedCategory === ""}
-                role="button"
-            >
-                All
-            </button>
-            {categories.map((category, index) => {
-                const slug = typeof category.slug === "string" ? category.slug : `category-${index}`;
-                return (
-                    <button
-                        key={slug}
-                        className={getButtonClasses(selectedCategory === slug)}
-                        onClick={() => setSelectedCategory(slug)}
-                        aria-pressed={selectedCategory === slug}
-                        role="button"
-                    >
-                        {category.name}
-                    </button>
-                );
-            })}
-        </div>
-    );
+        {categories.map((category) => (
+          <li
+            key={category.slug}
+            className={`p-3 cursor-pointer rounded-md transition-all duration-200 hover:bg-gray-100 ${
+              selectedCategory === category.slug ? "font-semibold text-gray-900 bg-gray-100" : "text-gray-700"
+            }`}
+            onClick={() => setSelectedCategory(category.slug)}
+          >
+            {category.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }

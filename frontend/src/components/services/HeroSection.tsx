@@ -4,10 +4,16 @@ import { motion } from "framer-motion";
 
 export function HeroSection() {
   return (
-    <section className="relative w-full bg-white text-gray-900 py-28">
-      <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-12">
+    <section
+      className="relative w-full text-gray-900 py-28 bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/b7.jpg')" }}
+    >
+      {/* Overlay for better text visibility */}
+      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+
+      <div className="relative container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-12">
         {/* Left Side: Title */}
-        <div className="flex-1 text-center md:text-left">
+        <div className="flex-1 text-center md:text-left text-white">
           <motion.h1
             className="text-4xl md:text-5xl font-extrabold mb-6"
             initial={{ opacity: 0, y: -30 }}
@@ -16,12 +22,9 @@ export function HeroSection() {
           >
             Unlock the Power of Media with Tetemeko
           </motion.h1>
-        </div>
 
-        {/* Right Side: Explanation */}
-        <div className="flex-1 text-center md:text-left">
           <motion.p
-            className="text-lg text-gray-600 mb-8"
+            className="text-lg text-gray-200 mb-8"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}

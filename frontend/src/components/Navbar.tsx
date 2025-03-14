@@ -3,12 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-// import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
 import { Menu, X } from "lucide-react";
 import { AnimatedLogo } from "./AnimatedLogo";
-// import ContactInfo from "./ContactInfo";
-// import { useRouter } from "next/navigation";
-
 
 export function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -20,15 +16,15 @@ export function Navbar() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    // Function to close the mobile menu
+    const closeMobileMenu = () => setMobileMenuOpen(false);
+
     return (
         <div className="w-full fixed top-0 left-0 z-50">
-            {/* 🔹 Contact Info Bar */}
-            {/* <ContactInfo /> */}
-
-            {/* 🔹 Main Navbar */}
             <header
-                className={`w-full transition-all duration-300 px-6 ${isScrolled ? "bg-black/80 text-white shadow-md" : "bg-transparent text-white"
-                    }`}
+                className={`w-full transition-all duration-300 px-6 ${
+                    isScrolled ? "bg-black/80 text-white shadow-md" : "bg-transparent text-white"
+                }`}
             >
                 <div className="container mx-auto flex items-center justify-between py-4">
                     {/* Logo */}
@@ -42,7 +38,7 @@ export function Navbar() {
                         <Link href="/services" className="hover:text-yellow-400">Services</Link>
                         <Link href="/marketplace" className="hover:text-yellow-400">Marketplace</Link>
                         <Link href="/contact" className="hover:text-yellow-400">Contact Us</Link>
-                        <Link href="/news" className="hover:text-yellow-400">News & Blogs</Link> {/* Updated Link */}
+                        <Link href="/news" className="hover:text-yellow-400">News & Blogs</Link>
                     </nav>
 
                     {/* CTA & Mobile Menu Toggle */}
@@ -61,11 +57,11 @@ export function Navbar() {
                 {/* Mobile Navigation */}
                 {mobileMenuOpen && (
                     <nav className="md:hidden bg-black text-white text-center py-4 space-y-4">
-                        <Link href="/about" className="block hover:text-yellow-400">About Us</Link>
-                        <Link href="/services" className="block hover:text-yellow-400">Services</Link>
-                        <Link href="/marketplace" className="block hover:text-yellow-400">Marketplace</Link>
-                        <Link href="/contact" className="block hover:text-yellow-400">Contact Us</Link>
-                        <Link href="/news" className="block hover:text-yellow-400">News & Blogs</Link> {/* Updated Link */}
+                        <Link href="/about" className="block hover:text-yellow-400" onClick={closeMobileMenu}>About Us</Link>
+                        <Link href="/services" className="block hover:text-yellow-400" onClick={closeMobileMenu}>Services</Link>
+                        <Link href="/marketplace" className="block hover:text-yellow-400" onClick={closeMobileMenu}>Marketplace</Link>
+                        <Link href="/contact" className="block hover:text-yellow-400" onClick={closeMobileMenu}>Contact Us</Link>
+                        <Link href="/news" className="block hover:text-yellow-400" onClick={closeMobileMenu}>News & Blogs</Link>
                     </nav>
                 )}
             </header>
