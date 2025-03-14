@@ -39,7 +39,7 @@ export function Testimonials() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          ⭐ Listener Reviews
+          Testimonials
         </motion.h2>
 
         {/* Testimonials Row Layout */}
@@ -62,7 +62,7 @@ export function Testimonials() {
               />
 
               {/* Review */}
-              <p className="text-lg text-gray-600 italic text-center">"{testimonial.review}"</p>
+              <p className="text-lg text-gray-600 italic text-center">&quot;{testimonial.review}&quot;</p>
 
               {/* Star Rating */}
               <div className="flex">

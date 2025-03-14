@@ -3,20 +3,24 @@
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Clock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
+// Declare global window property for initMap
 declare global {
   interface Window {
-    google: any;
     initMap: () => void;
   }
 }
 
 export function ContactUs() {
   const mapRef = useRef<HTMLDivElement>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  // Define initMap globally to avoid undefined error
-  window.initMap = () => {
+  useEffect(() => {
+    setIsClient(true); // Set to true when the component is mounted on the client
+  }, []);
+
+  const initMap = () => {
     if (window.google && window.google.maps && mapRef.current) {
       const map = new window.google.maps.Map(mapRef.current, {
         center: { lat: -0.0022, lng: 34.5986 },
@@ -32,21 +36,56 @@ export function ContactUs() {
   };
 
   useEffect(() => {
-    if (typeof window.google !== "undefined" && window.google.maps) {
-      window.initMap();
-      return;
-    }
+    if (isClient) {
+      // Dynamically load the Google Maps API
+      const loadGoogleMapsScript = () => {
+        if (!document.querySelector("#google-maps-script")) {
+          const script = document.createElement("script");
+          script.id = "google-maps-script";
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&callback=initMap`;
+          script.async = true;
+          script.defer = true;
+          document.head.appendChild(script);
+        }
+      };
 
-    // Check if script already exists
-    if (!document.querySelector("#google-maps-script")) {
-      const script = document.createElement("script");
-      script.id = "google-maps-script";
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&callback=initMap`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
+      // Initialize the map once the script is loaded
+      if (window.google && window.google.maps) {
+        initMap();
+      } else {
+        loadGoogleMapsScript();
+        window.initMap = initMap;
+      }
     }
-  }, []);
+  }, [isClient]);
+
+  const contactItems = [
+    {
+      icon: <Mail className="text-yellow-400 w-12 h-12 mb-2" />,
+      title: "Email",
+      detail: "info@tetemekomedia.com",
+    },
+    {
+      icon: <Phone className="text-yellow-400 w-12 h-12 mb-2" />,
+      title: "Phone",
+      detail: "+123 456 7890",
+    },
+    {
+      icon: <MapPin className="text-yellow-400 w-12 h-12 mb-2" />,
+      title: "Location",
+      detail: "Maseno, Kisumu-Kenya",
+    },
+    {
+      icon: <Clock className="text-yellow-400 w-12 h-12 mb-2" />,
+      title: "Business Hours",
+      detail: "Mon - Fri: 9AM - 6PM",
+    },
+    {
+      icon: <Globe className="text-yellow-400 w-12 h-12 mb-2" />,
+      title: "Website",
+      detail: "www.tetemekomedia.com",
+    },
+  ];
 
   return (
     <section className="w-full bg-gray-900 text-white py-16">
@@ -66,38 +105,12 @@ export function ContactUs() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Have questions? Contact us and let's connect!
+          Have questions? Contact us and let&apos;s connect!
         </motion.p>
 
         {/* Contact Info */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {[
-            {
-              icon: <Mail className="text-yellow-400 w-12 h-12 mb-2" />,
-              title: "Email",
-              detail: "info@tetemekomedia.com",
-            },
-            {
-              icon: <Phone className="text-yellow-400 w-12 h-12 mb-2" />,
-              title: "Phone",
-              detail: "+123 456 7890",
-            },
-            {
-              icon: <MapPin className="text-yellow-400 w-12 h-12 mb-2" />,
-              title: "Location",
-              detail: "Maseno, Kisumu-Kenya",
-            },
-            {
-              icon: <Clock className="text-yellow-400 w-12 h-12 mb-2" />,
-              title: "Business Hours",
-              detail: "Mon - Fri: 9AM - 6PM",
-            },
-            {
-              icon: <Globe className="text-yellow-400 w-12 h-12 mb-2" />,
-              title: "Website",
-              detail: "www.tetemekomedia.com",
-            },
-          ].map((item, index) => (
+          {contactItems.map((item, index) => (
             <motion.div
               key={index}
               className="bg-gray-800 p-6 rounded-lg shadow-md flex flex-col items-center"

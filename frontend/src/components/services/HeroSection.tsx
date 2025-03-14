@@ -26,7 +26,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            Whether you're looking to broadcast, produce, advertise, or engage your audience, we provide all the services you need to succeed. Explore how we can help you reach your full potential.
+            Whether you&apos;re looking to broadcast, produce, advertise, or engage your audience, we provide all the services you need to succeed. Explore how we can help you reach your full potential.
           </motion.p>
 
           <motion.a

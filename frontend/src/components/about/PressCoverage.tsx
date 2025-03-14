@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { motion } from "framer-motion";
 
@@ -45,7 +45,7 @@ export function PressCoverage() {
           >
             <h4 className="text-xl font-semibold text-black">On Air Interviews</h4>
             <p className="text-gray-700 mt-2">
-              We've been interviewed by leading media outlets to discuss the future of broadcasting and media.
+              We&apos;ve been interviewed by leading media outlets to discuss the future of broadcasting and media.
             </p>
           </motion.div>
         </div>

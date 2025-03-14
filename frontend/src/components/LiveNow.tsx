@@ -81,7 +81,7 @@ export function LiveNow() {
         {/* Right Side (Description) */}
         <div className="w-full lg:w-1/3 lg:pl-12 text-left bg-white rounded-lg shadow-lg p-6 relative z-10 mt-10 lg:mt-0">
           <p className="text-lg text-gray-700 mb-6">
-            Experience the best of Tetemeko's live streams. Whether you're into exciting live TV shows or the latest music and radio hits, we have something for you. From Tetemeko TV bringing you news and entertainment 24/7 to the vibrant sounds of Urban FM and the timeless classics of Classic Vibes, our live streams keep you updated and entertained no matter where you are.
+            Experience the best of Tetemeko&apos;s live streams. Whether you&apos;re into exciting live TV shows or the latest music and radio hits, we have something for you. From Tetemeko TV bringing you news and entertainment 24/7 to the vibrant sounds of Urban FM and the timeless classics of Classic Vibes, our live streams keep you updated and entertained no matter where you are.
           </p>
 
           <div className="absolute inset-0 bg-opacity-30 bg-gradient-to-r from-transparent to-black rounded-lg"></div>

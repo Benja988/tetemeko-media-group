@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
+// import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
 import { Menu, X } from "lucide-react";
 import { AnimatedLogo } from "./AnimatedLogo";
-import ContactInfo from "./ContactInfo";
-import { useRouter } from "next/navigation";
+// import ContactInfo from "./ContactInfo";
+// import { useRouter } from "next/navigation";
 
 
 export function Navbar() {

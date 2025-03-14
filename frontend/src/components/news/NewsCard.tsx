@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface NewsCardProps {
     article: {
@@ -14,9 +15,11 @@ export default function NewsCard({ article }: NewsCardProps) {
         <div className="flex flex-col bg-white border rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             {/* Image Section */}
             <div className="w-full h-40 bg-gray-200">
-                <img
+                <Image
                     src={article.urlToImage || "/placeholder.jpg"} // Default image if none provided
                     alt={article.title}
+                    width={400} // You can set a width for the image
+                    height={160} // You can set a height for the image
                     className="w-full h-full object-cover"
                 />
             </div>

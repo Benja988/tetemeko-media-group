@@ -22,7 +22,7 @@ export function ContactUs() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Have questions? Contact us and let's connect!
+          Have questions? Contact us and let&apos;s connect!
         </motion.p>
 
         {/* Contact Info */}

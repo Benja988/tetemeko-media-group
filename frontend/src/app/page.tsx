@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { About } from "@/components/About";
-import { ContactUs } from "@/components/ContactUs";
+// import { About } from "@/components/About";
+// import { ContactUs } from "@/components/ContactUs";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { LiveNow } from "@/components/LiveNow";

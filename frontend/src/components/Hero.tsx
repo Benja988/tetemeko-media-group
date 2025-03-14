@@ -53,7 +53,7 @@ export function Hero() {
             </div>
           </div>
         </div>
-        <p className="mt-2 text-gray-300 italic">"{testimonials[currentReview].review}"</p>
+        <p className="mt-2 text-gray-300 italic">&quot;{testimonials[currentReview].review}&quot;</p>
       </motion.div>
 
       {/* Content */}

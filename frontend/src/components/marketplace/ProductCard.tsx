@@ -13,7 +13,7 @@ interface ProductProps {
     stock: number;
 }
 
-export default function ProductCard({ id, title, description, price, category, thumbnail, rating, stock }: ProductProps) {
+export default function ProductCard({ title, description, price, thumbnail, rating }: ProductProps) {
     return (
         <div className="border border-gray-300 rounded-lg shadow-xl p-6 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:scale-105 transform transition-all duration-300">
             <Image src={thumbnail} alt={title} width={200} height={200} className="rounded-md w-full h-48 object-cover" />

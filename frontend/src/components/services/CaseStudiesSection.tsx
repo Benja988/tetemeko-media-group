@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export function CaseStudiesSection() {
   return (
@@ -21,7 +22,13 @@ export function CaseStudiesSection() {
       >
         {/* Repeat for each case study */}
         <div className="bg-gray-100 p-8 rounded-xl shadow-xl">
-          <img src="/path-to-your-image.jpg" alt="Case Study 1" className="w-full h-48 object-cover rounded-lg mb-4" />
+          <Image
+            src="/path-to-your-image.jpg"
+            alt="Case Study 1"
+            width={500} // Set an appropriate width
+            height={200} // Set an appropriate height
+            className="w-full h-48 object-cover rounded-lg mb-4"
+          />
           <h4 className="text-2xl font-bold text-gray-900 mb-2">Case Study Title 1</h4>
           <p className="text-gray-600">Description of the case study and successful outcome. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
         </div>
