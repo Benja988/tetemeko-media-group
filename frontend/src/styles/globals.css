@@ -49,13 +49,7 @@ html {
 }
 
 /* Link Hover Effects */
-a {
-  @apply text-white transition-colors duration-300;
-}
 
-a:hover {
-  @apply text-gray-400;
-}
 
 /* Section Spacing */
 section {
