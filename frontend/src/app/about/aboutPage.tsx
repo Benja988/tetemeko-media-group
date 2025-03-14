@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { CompanyHistory } from "@/components/about/CompanyHistory";
 import { TeamSpotlight } from "@/components/about/TeamSpotlight";
