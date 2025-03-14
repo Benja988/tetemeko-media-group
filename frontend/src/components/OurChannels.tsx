@@ -6,7 +6,7 @@ import { Radio, Music, Waves } from "lucide-react";
 
 const channels = [
   {
-    name: "Radio One",
+    name: "Radio Piny Luo",
     icon: <Radio size={36} className="text-blue-500" />, 
     link: "/radio-one",
     description: "Trending music, talk shows, and live news updates.",

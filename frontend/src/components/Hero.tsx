@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 
 const testimonials = [
-  { id: 1, name: "John D.", review: "Tetemeko FM keeps me updated every morning! 🎙️", rating: 5, image: "/users/john.jpg" },
-  { id: 2, name: "Sarah M.", review: "Amazing content and great hosts. Love the vibes! 🔥", rating: 4, image: "/users/sarah.jpg" },
-  { id: 3, name: "James K.", review: "Best radio station for entertainment and news. 👏", rating: 5, image: "/users/james.jpg" },
+  { id: 1, name: "John D.", review: "Tetemeko FM keeps me updated every morning! 🎙️", rating: 5, image: "/user/prof.jpg" },
+  { id: 2, name: "Sarah M.", review: "Amazing content and great hosts. Love the vibes! 🔥", rating: 4, image: "/user/prof.jpg" },
+  { id: 3, name: "James K.", review: "Best radio station for entertainment and news. 👏", rating: 5, image: "/user/prof.jpg" },
 ];
 
 export function Hero() {

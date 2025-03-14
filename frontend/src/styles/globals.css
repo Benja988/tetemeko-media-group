@@ -5,3 +5,123 @@
 body {
   padding-top: 80px; /* Adjust this value based on your navbar height */
 }
+/* Root Variables */
+:root {
+  --primary-color: #1e40af; /* Tailwind blue-800 */
+  --secondary-color: #f4f7fa;
+  --text-light: #e0d7c6;
+  --text-dark: #333;
+  --accent-color: #ef4444; /* Tailwind red-500 */
+}
+
+/* Global Styles */
+body {
+  @apply bg-[#010c16] text-[#333] font-sans antialiased;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection Styling */
+::selection {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--secondary-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Link Hover Effects */
+a {
+  @apply text-blue-600 transition-colors duration-300;
+}
+
+a:hover {
+  @apply text-blue-800;
+}
+
+/* Section Spacing */
+section {
+  @apply py-10 px-4 md:px-16;
+}
+
+/* Button Styles */
+.btn {
+  @apply px-6 py-3 rounded-lg text-white font-semibold transition-all duration-300;
+}
+
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700;
+}
+
+.btn-secondary {
+  @apply bg-gray-700 hover:bg-gray-800;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Floating Bubble Animations */
+@keyframes float {
+  0% {
+    transform: translateY(0);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-20px);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.2;
+  }
+}
+
+.bubble {
+  animation: float 5s infinite ease-in-out;
+}
+
+/* Digital Background Animation */
+@keyframes slideBackground {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.digital-bg {
+  background: url('/digital-background.png') center center / cover no-repeat;
+  animation: slideBackground 10s linear infinite;
+}

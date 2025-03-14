@@ -97,7 +97,7 @@ export function ContactUs() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          📞 Get in Touch with Us
+           Get in Touch with Us
         </motion.h2>
         <motion.p
           className="text-lg text-gray-300 mb-8"

@@ -10,21 +10,21 @@ const testimonials = [
     name: "John D.",
     review: "Tetemeko FM keeps me updated every morning! 🎙️",
     rating: 5,
-    image: "/users/john.jpg",
+    image: "/user/prof.jpg",
   },
   {
     id: 2,
     name: "Sarah M.",
     review: "Amazing content and great hosts. Love the vibes! 🔥",
     rating: 4,
-    image: "/users/sarah.jpg",
+    image: "/user/prof.jpg",
   },
   {
     id: 3,
     name: "James K.",
     review: "Best radio station for entertainment and news. 👏",
     rating: 5,
-    image: "/users/james.jpg",
+    image: "/user/prof.jpg",
   },
 ];
 
