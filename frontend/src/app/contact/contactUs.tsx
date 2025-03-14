@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Clock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
+// import { Footer } from "@/components/Footer";
 
 // Declare global window property for initMap
 declare global {
@@ -88,6 +89,7 @@ export function ContactUs() {
   ];
 
   return (
+
     <section className="w-full bg-gray-900 text-white py-16">
       <div className="container mx-auto px-6 text-center">
         {/* Heading */}
@@ -160,7 +162,10 @@ export function ContactUs() {
             className="w-full h-96 bg-gray-800 rounded-lg shadow-md"
           ></div>
         </div>
+        
       </div>
+      
     </section>
+    
   );
 }

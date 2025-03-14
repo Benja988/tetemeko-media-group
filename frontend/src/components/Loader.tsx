@@ -25,7 +25,7 @@ export function Loader() {
         initial={{ opacity: 1 }}
         animate={{ opacity: 0 }}
         transition={{ delay: 3.2, duration: 0.5 }}
-        className="text-4xl font-bold text-yellow-500 flex space-x-1"
+        className="flex space-x-1 text-yellow-500 font-bold"
       >
         {logoText.split("").map((char, index) => (
           <motion.span
@@ -37,6 +37,7 @@ export function Loader() {
               duration: 0.4,
               ease: "easeOut",
             }}
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl" // Responsive text sizes
           >
             {char === " " ? "\u00A0" : char} {/* Preserve spaces */}
           </motion.span>

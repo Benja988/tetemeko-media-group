@@ -18,10 +18,10 @@ const channels = [
     description: "Live performances, exclusive tracks, and artist interviews.",
   },
   {
-    name: "Wave FM",
+    name: "classic Vibes",
     icon: <Waves size={36} className="text-red-500" />, 
-    link: "/wave-fm",
-    description: "Latest in pop culture, indie music, and deep discussions.",
+    link: "/classic-vibes",
+    description: "Live performances, exclusive tracks, and artist interviews.",
   },
 ];
 
@@ -85,9 +85,9 @@ export function OurChannels() {
             Whether you love music, culture, or discussions, we have a channel for you.
           </p>
           <ul className="list-disc pl-5 mt-4 text-md space-y-2">
-            <li><span className="font-semibold text-blue-600">Radio One:</span> 24/7 news, talk shows, and community updates.</li>
+            <li><span className="font-semibold text-blue-600">Radio Piny Luo:</span> 24/7 news, talk shows, and community updates.</li>
             <li><span className="font-semibold text-purple-500">Music Live:</span> Live performances, artist interviews, and exclusive tracks.</li>
-            <li><span className="font-semibold text-red-500">Wave FM:</span> Indie music, pop culture, and thought-provoking discussions.</li>
+            <li><span className="font-semibold text-red-500">Classic Vibes:</span> Live performances, artist interviews, and exclusive tracks.</li>
           </ul>
           <p className="mt-6 text-md text-gray-600">
             <span className="font-semibold text-indigo-500">Tune in now</span> and discover the sound of the future!

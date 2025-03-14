@@ -70,7 +70,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          The Future of Media, Live & On Demand
+          The Future of Media, We Have The Copy
         </motion.h1>
 
         {/* Cards Section - Responsive Grid */}
