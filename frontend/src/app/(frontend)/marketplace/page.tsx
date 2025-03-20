@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import SearchBar from "@/components/marketplace/SearchBar";
 import ProductCard from "@/components/marketplace/ProductCard";
 import HeroBanner from "@/components/marketplace/HeroBanner";
-import { Footer } from "@/components/Footer";
+import { Footer } from "@/components/common/Footer";
 import CategoryFilter from "@/components/marketplace/CategoryFilter";
 
 interface Product {
@@ -31,6 +31,7 @@ export default function MarketplacePage() {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
+// sourcery skip: avoid-function-declarations-in-blocks
     async function fetchData() {
       try {
         const [productsRes, categoriesRes] = await Promise.all([

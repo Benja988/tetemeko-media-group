@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 export function AnimatedLogo() {
   return (
     <motion.div
-      className="text-2xl font-bold text-yellow-500"
+      className="text-2xl font-bold text-text"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1, ease: "easeOut" }}

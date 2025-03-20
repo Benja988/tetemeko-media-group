@@ -3,7 +3,7 @@
  // Import CallToActionSection
  import { HeroSection } from "@/components/services/HeroSection";
  import { ServicesSection } from "@/components/services/ServicesSection";
-import { Footer } from "@/components/Footer";
+import { Footer } from "@/components/common/Footer";
 
 export function ServicesPage() {
   return (

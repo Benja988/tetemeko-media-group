@@ -20,12 +20,12 @@ export function Loader() {
   } // Hide when loading is complete
 
   return (
-    <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-blue-900 flex items-center justify-center z-50">
       <motion.div
         initial={{ opacity: 1 }}
         animate={{ opacity: 0 }}
         transition={{ delay: 3.2, duration: 0.5 }}
-        className="flex space-x-1 text-yellow-500 font-bold"
+        className="flex space-x-1 text-text font-bold"
       >
         {logoText.split("").map((char, index) => (
           <motion.span

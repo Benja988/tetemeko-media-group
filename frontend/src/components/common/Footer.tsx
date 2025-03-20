@@ -10,7 +10,7 @@ export function Footer() {
 
         {/* Brand & About */}
         <div>
-          <h2 className="text-2xl font-bold text-yellow-400">Tetemeko Media Group</h2>
+          <h2 className="text-2xl font-bold text-text">Tetemeko Media Group</h2>
           <p className="mt-3 text-gray-400 leading-relaxed">
             Your home for radio, news, podcasts, and entertainment. Tune in & stay updated!
           </p>
@@ -21,14 +21,14 @@ export function Footer() {
           <h3 className="text-xl font-semibold text-white">Contact Us</h3>
           <ul className="mt-3 space-y-2">
             <li className="flex items-center justify-center md:justify-start gap-2">
-              <Mail className="w-5 h-5 text-yellow-400" />
-              <a href="mailto:contact@tetemekomedia.com" className="hover:text-yellow-400 transition">
+              <Mail className="w-5 h-5 text-text" />
+              <a href="mailto:contact@tetemekomedia.com" className="hover:text-texthover transition">
                 contact@tetemekomedia.com
               </a>
             </li>
             <li className="flex items-center justify-center md:justify-start gap-2">
-              <Phone className="w-5 h-5 text-yellow-400" />
-              <a href="tel:+1234567890" className="hover:text-yellow-400 transition">
+              <Phone className="w-5 h-5 text-texthover" />
+              <a href="tel:+1234567890" className="hover:text-texthover transition">
                 +123 456 7890
               </a>
             </li>
@@ -39,10 +39,10 @@ export function Footer() {
         <div>
           <h3 className="text-xl font-semibold text-white">Quick Links</h3>
           <ul className="mt-3 space-y-2">
-            <li><Link href="/" className="hover:text-yellow-400 transition">Home</Link></li>
-            <li><Link href="/about" className="hover:text-yellow-400 transition">About Us</Link></li>
-            <li><Link href="/news" className="hover:text-yellow-400 transition">News & Blogs</Link></li>
-            <li><Link href="/contact" className="hover:text-yellow-400 transition">Contact Us</Link></li>
+            <li><Link href="/" className="hover:text-texthover transition">Home</Link></li>
+            <li><Link href="/about" className="hover:text-texthover transition">About Us</Link></li>
+            <li><Link href="/news" className="hover:text-texthover transition">News & Blogs</Link></li>
+            <li><Link href="/contact" className="hover:text-texthover transition">Contact Us</Link></li>
           </ul>
         </div>
 
@@ -51,16 +51,16 @@ export function Footer() {
           <h3 className="text-xl font-semibold text-white">Follow Us</h3>
           <div className="mt-4 flex justify-center md:justify-start space-x-4">
             <Link href="https://facebook.com" target="_blank" aria-label="Facebook">
-              <Facebook className="w-6 h-6 text-gray-400 hover:text-yellow-400 transition" />
+              <Facebook className="w-6 h-6 text-gray-400 hover:texthover transition" />
             </Link>
             <Link href="https://twitter.com" target="_blank" aria-label="Twitter">
-              <Twitter className="w-6 h-6 text-gray-400 hover:text-yellow-400 transition" />
+              <Twitter className="w-6 h-6 text-gray-400 hover:texthover transition" />
             </Link>
             <Link href="https://instagram.com" target="_blank" aria-label="Instagram">
-              <Instagram className="w-6 h-6 text-gray-400 hover:text-yellow-400 transition" />
+              <Instagram className="w-6 h-6 text-gray-400 hover:texthover transition" />
             </Link>
             <Link href="https://youtube.com" target="_blank" aria-label="YouTube">
-              <Youtube className="w-6 h-6 text-gray-400 hover:text-yellow-400 transition" />
+              <Youtube className="w-6 h-6 text-gray-400 hover:texthover transition" />
             </Link>
           </div>
         </div>
