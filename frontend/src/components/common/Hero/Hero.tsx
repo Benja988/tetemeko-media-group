@@ -38,7 +38,7 @@ export function Hero() {
       </div>
 
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
 
       {/* Hero Content */}
       <motion.div 
@@ -53,20 +53,17 @@ export function Hero() {
         <p className="text-base sm:text-lg text-gray-200 mt-4">
           Stream live radio, access breaking news, and explore exclusive content in one seamless experience.
         </p>
-        <Button className="mt-6 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg">
+        <Button className="mt-6 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg shadow-lg">
           Start Listening
         </Button>
       </motion.div>
 
-      {/* Services Card (Responsive Positioning) */}
+      {/* Services Card (Centered and Visible) */}
       <motion.div 
-        className="absolute bottom-5 sm:bottom-[-30px] left-4 sm:left-8 bg-white text-gray-900 shadow-2xl w-11/12 sm:w-full max-w-lg p-6 sm:p-10 flex flex-col items-center rounded-3xl relative overflow-hidden"
+        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-white text-gray-900 shadow-2xl w-11/12 sm:w-[500px] max-w-lg p-6 sm:p-10 flex flex-col items-center rounded-3xl overflow-hidden"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.5 }}
-        style={{
-          clipPath: "polygon(0 0, 100% 0, 100% 95%, 92% 100%, 0 100%)", 
-        }}
       >
         <AnimatePresence mode="wait">
           <motion.div
