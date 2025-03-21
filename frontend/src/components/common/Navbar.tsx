@@ -77,7 +77,7 @@ export function Navbar() {
                         </button>
                     ))}
                     <Button className="bg-red-600 text-white px-5 py-2 rounded-md hover:bg-red-700 transition">
-                        Listen Live
+                        Listen
                     </Button>
                 </div>
             </div>
