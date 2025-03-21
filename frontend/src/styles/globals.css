@@ -15,10 +15,6 @@
   --color-text: #eff2f6;
   --color-text-secondary: #011438;
 
-  /* ✅ Scrollbar Customization */
-  --scrollbar-track: var(--color-secondary);
-  --scrollbar-thumb: var(--color-primary);
-  --scrollbar-thumb-hover: var(--color-accent);
 }
 
 /* ✅ Global Styles */
@@ -31,29 +27,7 @@ body {
   scroll-behavior: smooth;
 }
 
-/* ✅ Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
 
-::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
-}
-
-/* ✅ Selection Styling */
-::selection {
-  background: var(--color-primary);
-  color: white;
-}
 
 /* ✅ Animations */
 @keyframes fadeIn {

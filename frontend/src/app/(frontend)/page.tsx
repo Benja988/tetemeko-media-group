@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Navbar } from "@/components/common/Navbar";
 import { Footer } from "@/components/common/Footer";
 import { Hero } from "@/components/common/Hero/Hero";
 import { LiveNow } from "@/components/common/LiveNow";
@@ -17,11 +16,6 @@ export default function Home() {
   return (
     <>
       <Loader />
-
-      {/* ✅ Navbar must be positioned ABOVE Hero */}
-      <div className="relative z-50">
-        <Navbar />
-      </div>
 
       {/* ✅ Background Wrapper (Avoid `overflow-hidden` at root level) */}
       <div className="relative min-h-screen bg-background text-text">
@@ -52,7 +46,7 @@ export default function Home() {
           </motion.div>
         </div>
 
-        {/* ✅ Ensure Hero does not overlap Navbar */}
+        {/* ✅ Hero Section (Includes Navbar) */}
         <motion.div 
           className="relative z-10" 
           initial={{ opacity: 0 }} 
@@ -62,7 +56,7 @@ export default function Home() {
           <Hero />
         </motion.div>
 
-        {/* ✅ Sections (Keep Below Navbar & Hero) */}
+        {/* ✅ Sections (Keep Below Hero) */}
         <div className="space-y-0 relative z-10">
           <AnimatedSection delay={0.2}>
             <OurChannels />
@@ -91,7 +85,7 @@ export default function Home() {
   );
 }
 
-/* ✅ Animated Section Wrapper (Keep Layout Organized) */
+/* ✅ Animated Section Wrapper (Keeps Layout Organized) */
 const AnimatedSection = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
   return (
     <motion.section
