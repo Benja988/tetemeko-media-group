@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { LucideIcon, Mic, Radio, Newspaper, ShoppingCart, Users, Video } from "lucide-react";
-import { services, Service } from "../../data/services";
+import { services } from "../../data/services";
 
 // Icon mapping
 const iconMap: Record<string, LucideIcon> = {
