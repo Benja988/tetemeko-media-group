@@ -21,7 +21,7 @@ export function Loader({ onComplete = () => {} }: LoaderProps) {
     <AnimatePresence>
       {showLoader && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center bg-black z-50"
+          className="fixed inset-0 flex items-center justify-center bg-blue-950 z-50"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1 }}
@@ -30,7 +30,7 @@ export function Loader({ onComplete = () => {} }: LoaderProps) {
             {[1, 2, 3, 4, 5].map((_, index) => (
               <motion.div
                 key={index}
-                className="w-2 sm:w-3 bg-red-600 rounded-full"
+                className="w-2 sm:w-3 bg-white rounded-full"
                 initial={{ height: "10px" }}
                 animate={{ height: ["10px", "30px", "10px"] }}
                 transition={{

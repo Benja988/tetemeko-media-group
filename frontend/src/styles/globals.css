@@ -30,7 +30,7 @@ body {
 
 
 /* ✅ Animations */
-@keyframes fadeIn {
+/* @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -39,8 +39,8 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
+} */
+/* 
 .fade-in {
   animation: fadeIn 0.5s ease-out;
 }
@@ -71,5 +71,5 @@ body {
   to {
     background-position: -100% 0;
   }
-}
+} */ 
 

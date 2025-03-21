@@ -1,46 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mic, Radio, Newspaper, ShoppingCart, Users, Video } from "lucide-react";
+import { LucideIcon, Mic, Radio, Newspaper, ShoppingCart, Users, Video } from "lucide-react";
+import { services, Service } from "../../data/services";
 
-const services = [
-  {
-    id: 1,
-    title: "Radio Broadcasting",
-    description: "Delivering high-quality radio content, live shows, and engaging programs across multiple stations.",
-    icon: <Radio className="w-14 h-14 text-red-500" />,
-  },
-  {
-    id: 2,
-    title: "News & Journalism",
-    description: "Stay informed with up-to-date news, investigative journalism, and insightful reports.",
-    icon: <Newspaper className="w-14 h-14 text-blue-500" />,
-  },
-  {
-    id: 3,
-    title: "Podcasting",
-    description: "Podcasts covering entertainment, deep conversations, and expert insights.",
-    icon: <Mic className="w-14 h-14 text-purple-500" />,
-  },
-  {
-    id: 4,
-    title: "Advertising & Promotions",
-    description: "Targeted radio ads, promotions, and media campaigns for maximum reach.",
-    icon: <ShoppingCart className="w-14 h-14 text-green-500" />,
-  },
-  {
-    id: 5,
-    title: "Video Production",
-    description: "High-quality video content including interviews, event coverage, and branded media.",
-    icon: <Video className="w-14 h-14 text-yellow-500" />,
-  },
-  {
-    id: 6,
-    title: "Community Engagement",
-    description: "Fostering community growth through events, social initiatives, and listener interactions.",
-    icon: <Users className="w-14 h-14 text-orange-500" />,
-  },
-];
+// Icon mapping
+const iconMap: Record<string, LucideIcon> = {
+  radio: Radio,
+  newspaper: Newspaper,
+  mic: Mic,
+  "shopping-cart": ShoppingCart,
+  video: Video,
+  users: Users,
+};
+
 
 export function OurServices() {
   return (
@@ -58,30 +31,29 @@ export function OurServices() {
 
         {/* Services Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {services.map((service, index) => (
-            <motion.div
-              key={service.id}
-              className="relative bg-white/50 backdrop-blur-xl p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-200"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-            >
-              {/* Icon Container */}
-              <div className="flex justify-center items-center mb-6 w-16 h-16 bg-white rounded-full shadow-md ring-2 ring-gray-300">
-                {service.icon}
-              </div>
+          {services.map((service, index) => {
+            const IconComponent = iconMap[service.icon];
 
-              {/* Title & Description */}
-              <h3 className="text-xl font-semibold text-gray-900">{service.title}</h3>
-              <p className="text-gray-600 mt-3">{service.description}</p>
-
-              {/* Animated Underline */}
+            return (
               <motion.div
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 w-12 h-[3px] bg-gray-400 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500"
-              />
-            </motion.div>
-          ))}
+                key={service.id}
+                className="relative bg-white/50 backdrop-blur-xl p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-200"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+              >
+                {/* Icon with Dynamic Color */}
+                <div className="flex justify-center items-center mb-6 w-16 h-16 bg-white rounded-full shadow-md ring-2 ring-gray-300">
+                  <IconComponent className={`w-14 h-14 ${service.color}`} />
+                </div>
+
+                {/* Title & Description */}
+                <h3 className="text-xl font-semibold text-gray-900">{service.title}</h3>
+                <p className="text-gray-600 mt-3">{service.description}</p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
