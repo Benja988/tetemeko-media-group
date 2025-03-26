@@ -27,9 +27,10 @@ const transporter = nodemailer.createTransport({
 export const sendEmail = async (to: string, subject: string, html: string): Promise<void> => {
   try {
     const info = await transporter.sendMail({
-      from: `"Tetemeko Media Group <noreply@tetemeko.com>" <${EMAIL_FROM}>`, // Add a display name
+      from: `"Tetemeko Media Group" <${EMAIL_USER}>`, // Use authenticated email
       to,
       subject,
+      text: html.replace(/<[^>]+>/g, ""), // Strip HTML tags as fallback
       html,
     });
     console.log(`✅ Email sent successfully: ${info.messageId}`);
@@ -37,3 +38,4 @@ export const sendEmail = async (to: string, subject: string, html: string): Prom
     console.error(`❌ Error sending email: ${error.message || error}`);
   }
 };
+

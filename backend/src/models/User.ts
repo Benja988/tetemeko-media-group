@@ -1,46 +1,57 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { IRole } from "./Role";
+
+export enum UserRole {
+  WEB_USER = "web_user",
+  MANAGER = "manager",
+  ADMIN = "admin",
+}
 
 export interface IUser extends Document {
-  uid: string;
   email: string;
   name: string;
   password: string;
-  role: mongoose.Types.ObjectId | IRole | null;  // ✅ Allow null
+  role: UserRole;
   isVerified: boolean;
-  refreshToken?: string;
+  isActive: boolean;
+  invitationCode?: string;
+  invitationCodeExpires?: Date;
   verificationToken?: string;
   verificationTokenExpires?: Date;
-  mfaEnabled?: boolean;
-  mfaSecret?: string;
-  failedLoginAttempts?: number;
+  failedLoginAttempts: number;
   lockUntil?: Date;
-  resetPasswordToken?: string | null;
-  resetPasswordExpires?: Date | null;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
 }
-
-
 
 const UserSchema: Schema = new Schema(
   {
-    uid: { type: String, required: true, unique: true },
     email: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, // ✅ No need to use schema.index({ email: 1 })
       lowercase: true,
       trim: true,
-      match: [/^\S+@\S+\.\S+$/, "Invalid email format"], // Email validation using RegExp
+      match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
     },
     name: { type: String, required: true },
     password: { type: String, required: true },
-    role: { type: Schema.Types.ObjectId, ref: "Role", default: null },  // ✅ Allow null
+    role: {
+      type: String,
+      enum: Object.values(UserRole),
+      default: UserRole.WEB_USER,
+    },
     isVerified: { type: Boolean, default: false },
-    refreshToken: { type: String, default: null },
+    isActive: { type: Boolean, default: true },
+
+    // ✅ Invitation system
+    invitationCode: { type: String, unique: true, sparse: true }, // No need to add index manually
+    invitationCodeExpires: { type: Date },
+
+    // ✅ Email verification
     verificationToken: { type: String },
     verificationTokenExpires: { type: Date },
-    mfaEnabled: { type: Boolean, default: false },
-    mfaSecret: { type: String },
+
+    // ✅ Security features
     failedLoginAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date },
     resetPasswordToken: { type: String },
@@ -49,7 +60,42 @@ const UserSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+// ✅ Auto-set expiration for invitation codes (7 days)
+UserSchema.pre<IUser>("save", function (next) {
+  if (this.invitationCode && !this.invitationCodeExpires) {
+    this.invitationCodeExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  }
+  next();
+});
 
+// ✅ Auto-set expiration for verification tokens (24 hours)
+UserSchema.pre<IUser>("save", function (next) {
+  if (this.verificationToken && !this.verificationTokenExpires) {
+    this.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  }
+  next();
+});
 
+// ✅ Brute-force protection
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCK_TIME = 15 * 60 * 1000;
+
+UserSchema.methods.incrementFailedLogins = async function () {
+  if (this.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
+    this.lockUntil = new Date(Date.now() + LOCK_TIME);
+  } else {
+    this.failedLoginAttempts += 1;
+  }
+  await this.save();
+};
+
+UserSchema.methods.resetFailedLogins = async function () {
+  this.failedLoginAttempts = 0;
+  this.lockUntil = undefined;
+  await this.save();
+};
+
+// ✅ Only keep the necessary index
+UserSchema.index({ verificationToken: 1 }, { sparse: true });
 
 export default mongoose.model<IUser>("User", UserSchema);

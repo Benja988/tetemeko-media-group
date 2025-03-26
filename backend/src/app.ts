@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import rateLimit from "express-rate-limit";
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes'
-import roleRoutes from './routes/role.routes'
 import cookieParser from 'cookie-parser'
 
 // Load env
@@ -28,7 +27,6 @@ app.use(limiter);
 
 // Routes
 app.use("/api/auth", authRoutes)
-app.use("/api/roles", roleRoutes)
 
 // Default Route
 app.get('/', (req, res) => {

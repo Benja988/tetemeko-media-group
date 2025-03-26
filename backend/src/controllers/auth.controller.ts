@@ -1,525 +1,482 @@
-import { NextFunction, Request, Response } from 'express'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { validationResult } from 'express-validator'
-import mongoose from 'mongoose'
-import User from '../models/User'
-import Role from '../models/Role'
-import { AuthenticatedRequest } from '../middlewares/auth.middleware'
-import crypto from 'crypto'
-import nodemailer from 'nodemailer'
-import speakeasy from 'speakeasy'
-import { google } from 'googleapis'
-import { isTokenRevoked, revokeToken } from '../utils/tokenBlacklist'
-import { sendEmail } from '../utils/sendEmail'
+import { Request, Response, NextFunction, RequestHandler } from "express";
+import User, { IUser, UserRole } from "../models/User";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { sendEmail } from "../utils/sendEmail";
+import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 
-// Google OAuth2 Client
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.CLIENT_URL + '/auth/google/callback'
-)
+// Helper to generate JWT token
+const generateToken = (user: IUser) => {
+  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: "7d" });
+};
 
-// Generate JWT Tokens
-const generateTokens = async (user: any) => {
-  const accessToken = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET as string,
-    { expiresIn: '15m' }
-  )
-
-  const refreshToken = jwt.sign(
-    { id: user._id },
-    process.env.REFRESH_SECRET as string,
-    { expiresIn: '7d' }
-  )
-
-  return { accessToken, refreshToken }
-}
-
-// ✅ Register with Email Verification
-export const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+// ✅ Register Web User
+export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password } = req.body
-
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() })
-      return
+    const { name, email, password } = req.body;
+    if (await User.findOne({ email })) {
+      res.status(400).json({ message: "Email already registered" });
+      return;
     }
 
-    // Check if email exists
-    const existingUser = await User.findOne({ email }).exec()
-    if (existingUser) {
-      res.status(400).json({ message: 'Email already in use' })
-      return
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10)
-
-    // Determine role
-    const userCount = await User.countDocuments()
-    let role =
-      userCount === 0
-        ? (await Role.findOne({ name: 'superadmin' })) ??
-          (await Role.create({ name: 'superadmin' }))
-        : (await Role.findOne({ name: 'user' })) ??
-          (await Role.create({ name: 'user' }))
-
-    // Generate a verification token
-    const verificationToken = crypto.randomBytes(32).toString('hex')
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
     const newUser = new User({
-      uid: new mongoose.Types.ObjectId(),
       name,
       email,
       password: hashedPassword,
-      role: role._id,
+      role: UserRole.WEB_USER,
       isVerified: false,
       verificationToken,
-    })
+    });
 
-    await newUser.save()
+    await newUser.save();
 
-    // Send Verification Email
-    const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`
+    // Construct verification link
+    const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}&email=${email}`;
 
-    const emailHtml = `
-      <div style="max-width: 600px; margin: auto; padding: 20px; font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; border-radius: 8px;">
-        <div style="text-align: center; padding-bottom: 20px;">
-          <img src="https://yourcompany.com/logo.png" alt="Tetemeko Media Logo" style="max-width: 150px;">
-        </div>
-        <h2 style="text-align: center; color: #222;">Welcome to Tetemeko Media, ${name}! 🎉</h2>
-        <p style="font-size: 16px; line-height: 1.6; text-align: center;">
-          Thank you for signing up. Please verify your email address to activate your account.
-        </p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationLink}" style="display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 20px; font-size: 16px; text-decoration: none; border-radius: 5px;">
-            Verify My Email
-          </a>
-        </div>
-        <p style="font-size: 14px; line-height: 1.6; text-align: center; color: #666;">
-          If you didn’t request this, you can safely ignore this email.
-        </p>
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-        <p style="font-size: 12px; text-align: center; color: #999;">
-          Need help? Contact our support at 
-          <a href="mailto:support@tetemekomedia.com" style="color: #007bff;">support@tetemekomedia.com</a>
-        </p>
-      </div>
-    `
+    await sendEmail(email, "Verify Your Email", `Click the link to verify your email: ${verificationLink}`);
 
-    console.log('SMTP Config:', {
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS ? '✔ Hidden' : '❌ Missing',
-    })
-
-    await sendEmail(email, 'Verify Your Email', emailHtml)
-
-    res
-      .status(201)
-      .json({
-        message: 'User registered successfully. Verification email sent.',
-      })
-  } catch (err: any) {
-    if (err.name === 'ValidationError') {
-      res.status(400).json({ message: err.message })
-    }
-    next(err)
-  }
-}
-
-export const verifyEmail = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { token } = req.query // Use req.query instead of req.params
-    if (!token) {
-      res.status(400).json({ message: 'Token is required' })
-      return
-    }
-
-    const user = await User.findOne({ verificationToken: token }).exec()
-    console.log('User found:', user) // Debugging log
-
-    if (!user) {
-      res.status(400).json({ message: 'Invalid token' })
-      return
-    }
-
-    // Optional: Check token expiry
-    if (
-      user.verificationTokenExpires &&
-      user.verificationTokenExpires < new Date()
-    ) {
-      res.status(400).json({ message: 'Verification token expired' })
-      return
-    }
-
-    user.isVerified = true
-    user.verificationToken = undefined
-    await user.save()
-
-    res.json({ message: 'Email verified successfully' })
+    res.status(201).json({ message: "User registered. Please verify your email." });
   } catch (err) {
-    next(err)
-  }
-}
-
-// ✅ Login with Account Lockout & MFA
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { email, password, otp } = req.body
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() })
-      return
-    }
-
-    const user = await User.findOne({ email }).populate('role').exec()
-    if (!user) {
-      res.status(401).json({ message: 'Invalid credentials' })
-      return
-    }
-
-    if (!user.isVerified) {
-      res.status(403).json({ message: 'Email not verified' })
-      return
-    }
-
-    user.failedLoginAttempts = user.failedLoginAttempts ?? 0
-
-    if (user.failedLoginAttempts >= 5) {
-      res.status(403).json({ message: 'Account locked. Reset password' })
-      return
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch) {
-      user.failedLoginAttempts += 1
-      await user.save()
-      res.status(401).json({ message: 'Invalid credentials' })
-      return
-    }
-
-    // Reset failed attempts after successful login
-    user.failedLoginAttempts = 0
-    await user.save()
-
-    if (user.mfaEnabled) {
-      if (!otp) {
-        res.status(400).json({ message: 'OTP required for 2FA' })
-        return
-      }
-
-      const verified = speakeasy.totp.verify({
-        secret: user.mfaSecret ?? '',
-        encoding: 'base32',
-        token: otp,
-      })
-
-      if (!verified) {
-        res.status(401).json({ message: 'Invalid OTP' })
-        return
-      }
-    }
-
-    const { accessToken, refreshToken } = await generateTokens(user)
-
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    })
-
-    res.status(200).json({ accessToken })
-  } catch (err) {
-    next(err)
-  }
-}
-
-// ✅ OAuth Google Login
-export const googleAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { tokenId } = req.body
-
-    if (!tokenId) {
-      res.status(400).json({ message: 'Token ID is required' })
-      return
-    }
-
-    const { data } = await google
-      .oauth2('v2')
-      .userinfo.get({ auth: oauth2Client })
-
-    if (!data || !data.email) {
-      res.status(400).json({ message: 'Invalid Google token' })
-      return
-    }
-
-    let user = await User.findOne({ email: data.email }).exec()
-
-    if (!user) {
-      let userRole = await Role.findOne({ name: 'user' }).exec()
-      if (!userRole) {
-        userRole = await Role.create({ name: 'user' })
-      }
-
-      user = new User({
-        uid: new mongoose.Types.ObjectId(),
-        name: data.name,
-        email: data.email,
-        password: crypto.randomBytes(20).toString('hex'),
-        role: userRole._id,
-        isVerified: true,
-      })
-
-      await user.save()
-    }
-
-    const { accessToken, refreshToken } = await generateTokens(user)
-
-    res.status(200).json({ accessToken, refreshToken })
-  } catch (err) {
-    next(err)
-  }
-}
-
-// ✅ Enable MFA
-export const enableMFA = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    if (!req.user?.id) {
-      res.status(401).json({ message: 'Unauthorized' })
-      return
-    }
-
-    const secret = speakeasy.generateSecret()
-
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { mfaSecret: secret.base32, mfaEnabled: true },
-      { new: true }
-    )
-
-    if (!updatedUser) {
-      res.status(404).json({ message: 'User not found' })
-      return
-    }
-
-    res.json({ secret: secret.otpauth_url })
-  } catch (err) {
-    next(err)
-  }
-}
-
-export const forgotPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { email } = req.body
-    const user = await User.findOne({ email })
-
-    if (!user) {
-      res.status(404).json({ message: 'User not found' })
-      return
-    }
-
-    // Generate a secure reset token
-    const resetToken = crypto.randomBytes(32).toString('hex')
-    user.resetPasswordToken = resetToken
-    user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000)
-    await user.save()
-
-    // Send Reset Email
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    })
-
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`
-    const mailOptions = {
-      to: email,
-      subject: 'Password Reset Request',
-      text: `Click the link to reset your password: ${resetUrl}. It expires in 10 minutes.`,
-      html: `<p>Click the link below to reset your password. This link expires in 10 minutes:</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
-    }
-
-    await transporter.sendMail(mailOptions)
-
-    res.json({ message: 'Password reset link sent to your email.' })
-  } catch (err) {
-    next(err)
-  }
-}
-
-// ✅ Reset Password - Verifies Token & Updates Password
-export const resetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { token } = req.params
-    const { newPassword } = req.body
-
-    const user = await User.findOne({ resetPasswordToken: token })
-
-    if (
-      !user ||
-      !user.resetPasswordExpires ||
-      user.resetPasswordExpires.getTime() < Date.now()
-    ) {
-      res.status(400).json({ message: 'Invalid or expired token' })
-      return
-    }
-
-    // Hash new password & update user
-    user.password = await bcrypt.hash(newPassword, 10)
-    user.resetPasswordToken = undefined
-    user.resetPasswordExpires = undefined
-    await user.save()
-
-    res.json({ message: 'Password reset successfully. You can now log in.' })
-  } catch (err) {
-    next(err)
-  }
-}
-
-export const refreshToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { refreshToken } = req.cookies
-    if (!refreshToken) {
-      res.status(401).json({ message: 'Unauthorized' })
-      return
-    }
-
-    // ✅ Check if the refresh token is blacklisted
-    if (isTokenRevoked(refreshToken)) {
-      res.status(403).json({ message: 'Invalid or expired token' })
-      return
-    }
-
-    const decoded = jwt.verify(
-      refreshToken,
-      process.env.REFRESH_SECRET as string
-    ) as { id: string }
-    const user = await User.findById(decoded.id)
-
-    if (!user || user.refreshToken !== refreshToken) {
-      res.status(403).json({ message: 'Invalid token' })
-      return
-    }
-
-    // ✅ Revoke old token before issuing a new one
-    revokeToken(refreshToken)
-
-    const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
-      user
-    )
-
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    })
-
-    res.status(200).json({ accessToken })
-  } catch (err) {
-    next(err)
-  }
-}
-
-export const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const authHeader = req.headers.authorization;
-    const refreshToken = req.cookies?.refreshToken; // ✅ Avoid destructuring if undefined
-
-    if (!authHeader) {
-      res.status(401).json({ message: "Unauthorized: No token provided" });
-      return;
-    }
-
-    const token = authHeader.split(" ")[1]; // Extract token after "Bearer "
-    if (!token) {
-      res.status(401).json({ message: "Unauthorized: Invalid token format" });
-      return;
-    }
-
-    // Blacklist the token (Optional)
-    await revokeToken(token);
-
-    // Remove refresh token if available
-    if (refreshToken) {
-      await revokeToken(refreshToken);
-      res.clearCookie("refreshToken");
-    }
-
-    res.status(200).json({ message: "Logged out successfully" });
-  } catch (err) {
-    next(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-export const promoteUser = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+// ✅ Verify Email
+export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, newRole } = req.body
+    const { token } = req.query; // Read only the token from URL params
 
-    if (!email || !newRole) {
-      res.status(400).json({ message: 'Email and new role are required' })
-      return
+    if (!token) {
+      res.status(400).json({ message: "Invalid verification link" });
+      return;
     }
 
-    const user = await User.findOne({ email }).exec()
+    // Find user by token
+    const user = await User.findOne({ verificationToken: token });
+
     if (!user) {
-      res.status(404).json({ message: 'User not found' })
-      return
+      res.status(400).json({ message: "Invalid or expired verification token" });
+      return;
     }
 
-    const role = await Role.findOne({ name: newRole }).exec()
-    if (!role) {
-      res.status(404).json({ message: 'Role not found' })
-      return
-    }
+    // Mark user as verified
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
 
-    user.role = role._id as mongoose.Types.ObjectId // ✅ Explicitly cast to ObjectId
-    await user.save()
-
-    res
-      .status(200)
-      .json({ message: `User promoted to ${newRole} successfully.` })
-  } catch (err) {
-    next(err)
+    res.status(200).json({ message: "Email verified successfully. You can now log in." });
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-}
+};
+
+// ✅ Login User
+export const login = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      res.status(400).json({ message: "Email and password are required" });
+      return;
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
+    }
+
+    if (!user.isVerified) {
+      res.status(403).json({ message: "Please verify your email first" });
+      return;
+    }
+
+    // Generate authentication token
+    const token = generateToken(user);
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// ✅ Invite Manager
+export const inviteManager = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    const invitationCode = crypto.randomBytes(8).toString("hex"); // Shorter code
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    console.log(`📩 Sending invitation to: ${email}`);
+    console.log(`📌 Invitation Code: ${invitationCode}`);
+
+    await sendEmail(
+      email,
+      "You're Invited to Join as a Manager!",
+      `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
+        <h2 style="color: #333; text-align: center;">🎉 Invitation to Join</h2>
+        <p>Hello,</p>
+        <p>You have been invited to join as a <strong>Manager</strong>. Use the following invitation code to register:</p>
+        
+        <div style="text-align: center; padding: 15px; background: #007bff; color: white; font-size: 18px; font-weight: bold; border-radius: 5px;">
+          ${invitationCode}
+        </div>
+        
+        <p style="margin-top: 15px;">This code will expire on <strong>${expiresAt.toDateString()}</strong>.</p>
+        <p>To complete your registration, click the button below:</p>
+        
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="http://localhost:3000/register?invitation=${invitationCode}" style="padding: 12px 20px; background-color: #28a745; color: white; text-decoration: none; font-weight: bold; border-radius: 5px;">Register Now</a>
+        </div>
+        
+        <p style="margin-top: 15px;">If you did not request this invitation, please ignore this email.</p>
+        
+        <hr>
+        <p style="font-size: 12px; color: #555;">Best Regards, <br> Your Company Team</p>
+      </div>
+      `
+    );
+    
+
+    res.json({ message: "Invitation sent successfully." });
+  } catch (err) {
+    console.error("❌ Server error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+// ✅ Admin Registration (Most Secure Method)
+export const registerAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, email, password, adminSecret } = req.body;
+
+    if (await User.findOne({ email })) {
+      res.status(400).json({ message: "Email already registered" });
+      return; // ✅ Explicit return to avoid further execution
+    }
+
+    if (adminSecret !== process.env.ADMIN_SECRET) {
+      res.status(403).json({ message: "Invalid admin secret" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newAdmin = new User({ 
+      name, 
+      email, 
+      password: hashedPassword, 
+      role: UserRole.ADMIN, 
+      isVerified: true 
+    });
+
+    await newAdmin.save();
+
+    res.status(201).json({ message: "Admin registered successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Register Manager with Invitation Code
+export const registerManager = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, email, password, invitationCode } = req.body;
+
+    if (!invitationCode) {
+      res.status(400).json({ message: "Invalid invitation code" });
+      return;
+    }
+
+    if (await User.findOne({ email })) {
+      res.status(400).json({ message: "Email already registered" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    const newManager = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: UserRole.MANAGER,
+      isVerified: false,
+      verificationToken,  // Store token in DB
+    });
+
+    await newManager.save();
+
+    // Use environment variable for domain
+    const domain = process.env.CLIENT_URL || "https://yourdomain.com";
+    const verificationLink = `${domain}/auth/verify-email?token=${verificationToken}`;
+    
+    await sendEmail(
+      email, 
+      "Verify Your Email", 
+      `<p>Hello ${name},</p>
+      <p>Click the link below to verify your email:</p>
+      <a href="${verificationLink}">${verificationLink}</a>`
+    );
+
+    res.status(201).json({ message: "Manager registered. Check email to verify your account." });
+
+  } catch (err) {
+    console.error("❌ Registration error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Promote Manager to Admin
+export const promoteToAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    if (user.role !== UserRole.MANAGER) {
+      res.status(400).json({ message: "User is not a manager" });
+      return;
+    }
+
+    user.role = UserRole.ADMIN;
+    await user.save();
+
+    res.status(200).json({ message: "User promoted to Admin" });
+  } catch (err) {
+    console.error("Error in promoteToAdmin:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Forgot Password
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1-hour expiry
+    await user.save();
+
+    await sendEmail(email, "Reset Password", `Your reset code: ${resetToken}`);
+    res.status(200).json({ message: "Reset code sent to email" });
+  } catch (err) {
+    console.error("Error in forgotPassword:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Reset Password
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, token, newPassword } = req.body;
+    const user = await User.findOne({ email, resetPasswordToken: token });
+
+    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+      res.status(400).json({ message: "Invalid or expired reset token" });
+      return;
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("Error in resetPassword:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Logout (Invalidate refresh tokens)
+export const logout = async (req: Request, res: Response) => {
+  try {
+    res.cookie("refreshToken", "", { httpOnly: true, expires: new Date(0) });
+    res.json({ message: "Logged out successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Resend Email Verification
+export const resendVerification = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ message: "Email is required" });
+      return;
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    if (user.isVerified) {
+      res.status(400).json({ message: "User is already verified" });
+      return;
+    }
+
+    // Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    user.verificationToken = verificationToken;
+    await user.save();
+
+    // Construct verification link
+    const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}&email=${email}`;
+
+    await sendEmail(email, "Verify Your Email", `Click the link to verify your email: ${verificationLink}`);
+
+    res.status(200).json({ message: "Verification email resent successfully" });
+  } catch (error) {
+    console.error("Error resending verification email:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// ✅ Get User Profile
+export const getProfile = async (req: Request, res: Response): Promise<void> => {
+  const authReq = req as AuthenticatedRequest;
+
+  try {
+    if (!authReq.user) {
+      res.status(401).json({ message: "Unauthorized: No user found in request" });
+      return;
+    }
+
+    const user = await User.findById(authReq.user.id).select("-password");
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Update Profile
+export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+  const authReq = req as AuthenticatedRequest; // Ensure req is treated as AuthenticatedRequest
+
+  try {
+    if (!authReq.user) {
+      res.status(401).json({ message: "Unauthorized: No user found in request" });
+      return;
+    }
+
+    const user = await User.findById(authReq.user.id);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const { name, password } = req.body;
+    if (name) user.name = name;
+    if (password) user.password = await bcrypt.hash(password, 10);
+
+    await user.save();
+    res.status(200).json({ message: "Profile updated successfully" });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Deactivate Account (Soft Delete)
+export const deactivateAccount = async (req: Request, res: Response): Promise<void> => {
+  const authReq = req as AuthenticatedRequest; // Ensure req is treated as AuthenticatedRequest
+
+  try {
+    if (!authReq.user) {
+      res.status(401).json({ message: "Unauthorized: No user found in request" });
+      return;
+    }
+
+    const user = await User.findById(authReq.user.id);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    user.isActive = false; // Assuming `isActive` exists in your User model
+    await user.save();
+    res.status(200).json({ message: "Account deactivated" });
+  } catch (err) {
+    console.error("Error deactivating account:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Refresh Token (Generate new JWT)
+export const refreshToken = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    jwt.verify(refreshToken, process.env.REFRESH_SECRET as string, (err: Error | null, decoded: any) => {
+      if (err) {
+        res.status(403).json({ message: "Invalid refresh token" });
+        return;
+      }
+
+      const newToken = jwt.sign(
+        { id: decoded.id, role: decoded.role },
+        process.env.JWT_SECRET as string,
+        { expiresIn: "7d" }
+      );
+
+      res.status(200).json({ token: newToken });
+    });
+  } catch (err) {
+    console.error("Error refreshing token:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

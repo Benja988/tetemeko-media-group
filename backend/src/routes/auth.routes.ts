@@ -1,39 +1,51 @@
 import express from "express";
-import { 
-    register, 
-    verifyEmail, 
-    login, 
-    refreshToken, 
-    logout, 
-    forgotPassword, 
-    resetPassword, 
-    googleAuth, 
-    enableMFA, 
-    promoteUser
+import {
+  registerUser,
+  verifyEmail,
+  login,
+  inviteManager,
+  registerAdmin,
+  registerManager,
+  promoteToAdmin,
+  forgotPassword,
+  resetPassword,
+  logout,
+  resendVerification,
+  getProfile,
+  updateProfile,
+  deactivateAccount,
+  refreshToken,
 } from "../controllers/auth.controller";
-import { authenticateJWT, authorize } from "../middlewares/auth.middleware";
-import rateLimit from "express-rate-limit";
+import { authenticateJWT, authorize, authorizeSuperAdmin } from "../middlewares/auth.middleware";
+import { UserRole } from "../models/User";
 
 const router = express.Router();
 
-// Rate limit login attempts to prevent brute-force attacks
-const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 7, // Limit each IP to 7 login attempts per window
-    message: "Too many login attempts, please try again later",
-});
-
-// Routes
-router.post("/register", register);
+// 🔹 Registration & Verification
+router.post("/register-user", registerUser); // Web User
+router.post("/register-manager", registerManager); // Manager with invitation code
+router.post("/register-admin", registerAdmin); // Admin with super admin authorization
 router.get("/verify-email", verifyEmail);
-router.post("/login", loginLimiter, login);
-router.post("/refresh-token", refreshToken);
-router.post("/logout", authenticateJWT, logout);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password/:token", resetPassword);
-router.post("/google", googleAuth);  // ✅ Google OAuth
-router.post("/enable-mfa", authenticateJWT, enableMFA); // ✅ Enable MFA
-router.post("/promote", authenticateJWT, authorize(["superadmin"]), promoteUser);
+router.post("/resend-verification", resendVerification);
 
+// 🔹 Login & Authentication
+router.post("/login", login);
+router.post("/logout", authenticateJWT, logout);
+router.post("/refresh-token", refreshToken);
+
+// 🔹 Password Management
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
+
+// 🔹 Manager Invitations & Role Upgrades
+router.post("/invite-manager", authenticateJWT, authorize([UserRole.ADMIN]), inviteManager);
+router.put("/promote/:userId", authenticateJWT, authorize([UserRole.ADMIN]), promoteToAdmin);
+
+// 🔹 User Profile Management
+router.get("/profile", authenticateJWT, getProfile);
+router.put("/profile", authenticateJWT, updateProfile);
+
+// 🔹 Account Status
+router.delete("/deactivate", authenticateJWT, deactivateAccount);
 
 export default router;
