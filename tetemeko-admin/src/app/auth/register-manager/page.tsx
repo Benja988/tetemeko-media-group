@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ export default function RegisterManager() {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -26,22 +27,29 @@ export default function RegisterManager() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
+  
     try {
-      await registerManager(form.name, form.email, form.password, form.invitationCode);
+      await registerManager(form.name, form.email, form.password, form.invitationCode, router); // ✅ Pass router
       toast.success("Manager registered successfully!");
-      router.push("/dashboard"); // ✅ Redirect after success
+      setShowModal(true);
+  
+      setTimeout(() => {
+        setShowModal(false);
+        router.push("/auth/login");
+      }, 60000);
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        toast.error(err.message);
-      } else {
-        setError("An unknown error occurred.");
-        toast.error("An unknown error occurred.");
-      }
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
+  };
+  
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    router.push("/auth/login");
   };
 
   return (
@@ -93,6 +101,23 @@ export default function RegisterManager() {
         </button>
         {error && <p className="text-red-500 text-center">{error}</p>}
       </form>
+
+      {/* ✅ Success Modal */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h3 className="text-xl font-semibold text-green-600">Registration Successful!</h3>
+            <p className="mt-2">Please check your email to verify your account.</p>
+            <p className="text-sm text-gray-500 mt-2">You will be redirected in 1 minute...</p>
+            <button
+              onClick={handleCloseModal}
+              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -174,33 +174,39 @@ export const registerAdmin = async (req: Request, res: Response): Promise<void> 
   try {
     const { name, email, password, adminSecret } = req.body;
 
+    if (!name || !email || !password || !adminSecret) {
+      res.status(400).json({ message: "All fields are required." });
+      return;
+    }
+
     if (await User.findOne({ email })) {
-      res.status(400).json({ message: "Email already registered" });
-      return; // ✅ Explicit return to avoid further execution
+      res.status(400).json({ message: "Email already registered." });
+      return;
     }
 
     if (adminSecret !== process.env.ADMIN_SECRET) {
-      res.status(403).json({ message: "Invalid admin secret" });
+      res.status(403).json({ message: "Invalid admin secret." });
       return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newAdmin = new User({ 
-      name, 
-      email, 
-      password: hashedPassword, 
-      role: UserRole.ADMIN, 
-      isVerified: true 
+    const newAdmin = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: UserRole.ADMIN,
+      isVerified: true,
     });
 
     await newAdmin.save();
 
     res.status(201).json({ message: "Admin registered successfully" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Admin Registration Error:", err);
+    res.status(500).json({ message: "Internal server error. Please try again later." });
   }
 };
+
 
 // ✅ Register Manager with Invitation Code
 export const registerManager = async (req: Request, res: Response): Promise<void> => {
